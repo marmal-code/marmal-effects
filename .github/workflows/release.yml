@@ -1,0 +1,47 @@
+# Při každém pushi do „main“ zkontroluje verzi v hlavičce marmal-effects.php.
+# Když je nová (tag vX.Y.Z ještě neexistuje), vytvoří GitHub Release s balíčkem
+# marmal-effects.zip. Weby si ho pak samy stáhnou jako aktualizaci.
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Zjistit verzi
+        id: v
+        run: |
+          VERSION=$(grep -m1 -E '^\s*\*\s*Version:' marmal-effects.php | sed -E 's/.*Version:\s*//' | tr -d '[:space:]')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sestavit ZIP
+        if: steps.v.outputs.exists == 'false'
+        run: |
+          mkdir -p dist/marmal-effects
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'dist' --exclude 'demo' ./ dist/marmal-effects/
+          cd dist && zip -qr marmal-effects.zip marmal-effects
+
+      - name: Vydat release
+        if: steps.v.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.v.outputs.version }}" dist/marmal-effects.zip \
+            --title "v${{ steps.v.outputs.version }}" \
+            --notes "$(git log -1 --pretty=%B)"
