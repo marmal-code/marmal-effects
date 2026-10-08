@@ -1,5 +1,10 @@
 # MarMal Effects
 
+> **Plugin se dál nevyvíjí (poslední verze 1.2.0).** Efekty jsou od října 2026 modul pluginu
+> [Marmal – Breakdance Plus](https://github.com/marmal-code/marmal-breakdance-plus) (0.7.0+):
+> po instalaci **MarMal → Moduly → Efekty → Převést ze starého pluginu**. Nastavení barev i třídy `mm-…` zůstanou.
+> Nové efekty přidávej do `modules/efekty/` v Breakdance Plus.
+
 Knihovna CSS efektů pro WordPress weby stavěné v Breakdance (funguje i bez něj).
 89 efektů v 10 sekcích, galerie s živými náhledy v administraci a automatické
 aktualizace z GitHubu.
@@ -115,7 +120,8 @@ define( 'MM_EFFECTS_GITHUB_TOKEN', 'github_pat_...' );
 
 ```
 marmal-effects/
-├── marmal-effects.php          hlavní soubor pluginu (verze, adresa repa, admin)
+├── marmal-effects.php          hlavička + pojistka (když běží modul v Breakdance Plus, nic nenačte)
+├── includes/plugin.php         tělo pluginu (aktualizace, načtení, admin)
 ├── includes/settings.php       nastavení barev (ručně / z Breakdance)
 ├── assets/css/mm-effects.css   všechny efekty
 ├── assets/js/mm-effects.js     scroll animace, počítadla, náklon, parallax
